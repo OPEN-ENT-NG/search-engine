@@ -1,0 +1,30 @@
+    {
+      "name": "fr.openent~search-engine~0.1-SNAPSHOT",
+      "config": {
+        "main" : "fr.openent.searchengine.SearchEngine",
+        "port" : 8053,
+        "app-name" : "Searchengine",
+    	"app-address" : "/searchengine",
+    	"app-icon" : "Searchengine-large",
+        "host": "${host}",
+        "ssl" : $ssl,
+        "auto-redeploy": false,
+        "userbook-host": "${host}",
+        "integration-mode" : "HTTP",
+        "app-registry.port" : 8012,
+        "mode" : "${mode}",
+        "entcore.port" : 8009,
+        "max-sec-time-allowed" : 4,
+        "paging-size-per-collection" : 10,
+        "search-word-min-size" : 4,
+        "publicConf": {
+                    <% if ("true".equals(xitiSwitch)) { %>
+                    "xiti": {
+                        "ID_SERVICE": {
+                            "default": 19
+                        }
+                     }
+                    <% } %>
+                }
+      }
+    }

@@ -1,0 +1,27 @@
+{
+	"searchengine.title": "Moteur de recherche",
+	"label.date": "modifié",
+	"label.search": "Rechercher",
+	"label.access": "Accéder à la ressource",
+	"actualitessearchingevents": "Actualités",
+	"collaborativeeditorsearchingevents": "Pad",
+	"sharebigfilessearchingevents": "Téléchargement de fichier lourd",
+	"rbssearchingevents": "Réservation de ressources",
+	"wikisearchingevents": "Wiki",
+	"supportsearchingevents": "Aide et support",
+	"forumsearchingevents": "Forum",
+	"poolsearchingevents": "Sondages",
+
+	"filters.all": "Tout",
+	"filters.title": "Filtrer sur",
+	"loading": "Chargement ...",
+
+	"search.engine.bad.search.criteria": "Vous devez saisir au moins un mot de plus de {0} caractères.",
+	"search.engine.result.partial" : "Le résultat de la recherche est incomplet car le traitement est trop long, veuillez affiner vos critères de recherche.",
+	"search.engine.has.more" : "Tous les résultats ne sont pas affichés. Veuillez utiliser la barre de scroll pour afficher la globalité des résultats de cette recherche.",
+	"search.engine.has.nomore" : "Tous les résultats en correspondance avec vos critères de recherche sont affichés.",
+
+	"search.engine.error.unknown" : "Erreur technique imprévue."
+
+
+}
