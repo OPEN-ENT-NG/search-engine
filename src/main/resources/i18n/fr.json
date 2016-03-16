@@ -7,10 +7,16 @@
 	"collaborativeeditorsearchingevents": "Pad",
 	"sharebigfilessearchingevents": "Téléchargement de fichier lourd",
 	"rbssearchingevents": "Réservation de ressources",
+	"timelinegeneratorsearchingevents": "Frise chronologique",
+	"mindmapsearchingevents": "Carte mentale",
+
 	"wikisearchingevents": "Wiki",
 	"supportsearchingevents": "Aide et support",
 	"forumsearchingevents": "Forum",
 	"poolsearchingevents": "Sondages",
+	"calendarsearchingevents": "Agenda",
+	"collaborativewallsearchingevents": "Mur collaboratif",
+
 	"label.placeholder" : "Saisir les données à rechercher",
 
 	"filters.all": "Tout",
