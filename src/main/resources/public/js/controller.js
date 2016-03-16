@@ -105,7 +105,7 @@ function SearchEngine($rootScope, $scope, template, date, lang, model, route){
 	var searchOk = function(status, hasMoreResult){
 		if (status) {
 			$scope.currentErrors.push({error: 'search.engine.result.partial'});
-			notify.error('search.engine.result.partial');
+			notify.info('search.engine.result.partial');
 		}
 		$scope.hasMoreResult.push((hasMoreResult) ?
 			{message: 'search.engine.has.more'} :

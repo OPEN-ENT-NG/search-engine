@@ -17,7 +17,7 @@
 			<div class="cell" style="width:50%;padding: 8px 18px 10px;">
 				<input type="text" name="searchField.words" ng-model="searchField.words"
 				   ng-keyup="$event.keyCode == 13 ? launchSearching(searchField.words, $event) : null" class="twelve cell"
-				   i18n-placeholder="searchengine.txt" required autofocus/>
+				   i18n-placeholder="label.placeholder" required autofocus/>
 			</div>
 			<div class="cell">
 				<button ng-click="searching();"><i18n>label.search</i18n></button>
@@ -42,7 +42,7 @@
 						<div><a href="/userbook/annuaire#[[res.ownerId]]">[[res.ownerDisplayName]]</a></div>
 						<span>[[res.title]]</span>
 						<span bind-html="res.description"></span>
-						<div><a href="[[res.url]]"><i18n>label.access</i18n></a></div>
+						<div><a href="[[res.url]]"><i18n>label.access</i18n> (<span translate content="[[res.app.toLowerCase()]]"></span>)</a></div>
 					</span>
 				</div>
 			</div>

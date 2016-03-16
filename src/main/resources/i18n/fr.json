@@ -11,6 +11,7 @@
 	"supportsearchingevents": "Aide et support",
 	"forumsearchingevents": "Forum",
 	"poolsearchingevents": "Sondages",
+	"label.placeholder" : "Saisir les données à rechercher",
 
 	"filters.all": "Tout",
 	"filters.title": "Filtrer sur",

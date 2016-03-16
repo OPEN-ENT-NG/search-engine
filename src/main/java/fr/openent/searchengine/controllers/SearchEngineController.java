@@ -124,11 +124,12 @@ public class SearchEngineController extends BaseController {
 								final Handler<Message<JsonObject>> searchHandler = new Handler<Message<JsonObject>>() {
 									@Override
 									public void handle(Message<JsonObject> event) {
-										appRegisteredUntreated.remove(event.body().getString("application"));
+										final String app = event.body().getString("application");
+										appRegisteredUntreated.remove(app);
 
 										if (log.isDebugEnabled()) {
 											log.debug("Search engine " + searchId + ", handle a result for : " +
-													event.body().getString("application"));
+													app);
 										}
 
 										final String replyMessage = checkCurrentResult(event.body().getValue("results"));
@@ -147,7 +148,10 @@ public class SearchEngineController extends BaseController {
 												realSizeResult = responseResults.size();
 											}
 											for (int i=0;i<realSizeResult;i++) {
-												results.addObject((JsonObject) responseResults.get(i));
+												final JsonObject jo = (JsonObject) responseResults.get(i);
+												//add the origin of the result
+												jo.putString("app", app);
+												results.addObject(jo);
 											}
 										}
 
