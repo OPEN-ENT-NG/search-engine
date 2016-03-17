@@ -6,7 +6,7 @@
 			<filters>
 				<li ng-repeat="type in searchTypes.all" ng-class="{ selected: type.selected }">
 					<label>
-						<i class="[[type.data.toLowerCase()]] type" tooltip="[[type.data.toLowerCase()]]"></i>
+						<i class="[[type.data.toLowerCase().slice(0, -15)]] type" tooltip="[[type.data.toLowerCase()]]"></i>
 						<input type="checkbox" ng-model="type.selected" ng-change="selectFilter(type)" />
 						<span translate content="[[type.data.toLowerCase()]]"></span>
 					</label>

@@ -102,6 +102,7 @@ public class SearchEngineController extends BaseController {
 							final JsonArray searchWords = checkAndComposeWordFromSearchText(data.getString("searchText", ""));
 							final Integer currentPage = data.getInteger("currentPage", 0);
 							final JsonArray types = data.getArray("filter", new JsonArray());
+							final String locale = I18n.acceptLanguage(request);
 
 							if (searchWords.size() != 0 && types.size() != 0) {
 								final String searchId = UUID.randomUUID().toString();
@@ -177,7 +178,7 @@ public class SearchEngineController extends BaseController {
 
 								eb.registerHandler(address, searchHandler);
 
-								publish(user, searchId, currentPage, searchWords, types);
+								publish(user, searchId, currentPage, searchWords, types, locale);
 							} else {
 								Renders.badRequest(request, i18n.translate("search.engine.bad.search.criteria", I18n.acceptLanguage(request),
 										SearchEngineController.this.searchWordMinSize.toString()));
@@ -229,7 +230,7 @@ public class SearchEngineController extends BaseController {
 	}
 
 	private void publish(UserInfos user, String searchId, Integer currentPage, JsonArray searchWords,
-						 JsonArray types) {
+						 JsonArray types, String locale) {
 		final JsonObject message = new JsonObject().putString("searchId", searchId);
 
 		message.putString("userId", user.getUserId());
@@ -240,6 +241,8 @@ public class SearchEngineController extends BaseController {
 		message.putNumber("limit", this.pagingSizePerCollection + 1);
 		message.putArray("columnsHeader", new JsonArray(RESULT_COLUMNS_HEADER));
 		message.putArray("appFilters", types);
+		message.putString("locale", locale);
+
 		eb.publish("search.searching", message);
 	}
 
