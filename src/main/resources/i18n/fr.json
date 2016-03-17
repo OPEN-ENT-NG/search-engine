@@ -10,12 +10,13 @@
 	"timelinegeneratorsearchingevents": "Frise chronologique",
 	"mindmapsearchingevents": "Carte mentale",
 	"wikisearchingevents": "Wiki",
+	"collaborativewallsearchingevents": "Mur collaboratif",
+	"pollsearchingevents": "Sondages",
 
 	"supportsearchingevents": "Aide et support",
 	"forumsearchingevents": "Forum",
-	"poolsearchingevents": "Sondages",
 	"calendarsearchingevents": "Agenda",
-	"collaborativewallsearchingevents": "Mur collaboratif",
+
 
 	"label.placeholder" : "Saisir les données à rechercher",
 
