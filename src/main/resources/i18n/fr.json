@@ -12,14 +12,10 @@
 	"wikisearchingevents": "Wiki",
 	"collaborativewallsearchingevents": "Mur collaboratif",
 	"pollsearchingevents": "Sondages",
-
-	"supportsearchingevents": "Aide et support",
-	"forumsearchingevents": "Forum",
 	"calendarsearchingevents": "Agenda",
-
-
+	"forumsearchingevents": "Forum",
+	"supportsearchingevents": "Aide et support",
 	"label.placeholder" : "Saisir les données à rechercher",
-
 	"filters.all": "Tout",
 	"filters.title": "Filtrer sur",
 	"loading": "Chargement ...",
@@ -28,8 +24,5 @@
 	"search.engine.result.partial" : "Le résultat de la recherche est incomplet car le traitement est trop long, veuillez affiner vos critères de recherche.",
 	"search.engine.has.more" : "Tous les résultats ne sont pas affichés. Veuillez utiliser la barre de scroll pour afficher la globalité des résultats de cette recherche.",
 	"search.engine.has.nomore" : "Tous les résultats en correspondance avec vos critères de recherche sont affichés.",
-
 	"search.engine.error.unknown" : "Erreur technique imprévue."
-
-
 }
