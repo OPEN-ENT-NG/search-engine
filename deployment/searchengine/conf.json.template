@@ -5,7 +5,7 @@
         "port" : 8053,
         "app-name" : "Searchengine",
     	"app-address" : "/searchengine",
-    	"app-icon" : "Searchengine-large",
+    	"app-icon" : "searchengine-large",
         "host": "${host}",
         "ssl" : $ssl,
         "auto-redeploy": false,

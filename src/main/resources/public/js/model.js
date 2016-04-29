@@ -76,6 +76,7 @@ model.build = function (){
 				if(resultssearch.results.length > 0){
 					that.addRange(resultssearch.results);
 					that.page++;
+					if (resultssearch.hasMoreResult === false) that.lastPage = true;
 				} else {
 					that.lastPage = true;
 				}

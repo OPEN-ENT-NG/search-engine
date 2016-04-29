@@ -29,27 +29,31 @@
 			<div ng-include="template.containers.hasMoreResult" ng-show="searchs.all"></div>
 		</div>
 	</div>
-		
-	<div ng-repeat="res in searchs.all  | orderBy: '-modified.$date'" class="row notification" bottom-scroll="loadPage()">
-		<article>
-			<div class="row">
-				<div class="content horizontal-spacing">
-					<span class="inline">
-						<span class="avatar">
-							<i class="system-avatar" ng-if="!res.ownerId"></i>
-							<img ng-src="/userbook/avatar/[[res.ownerId]]?thumbnail=100x100" ng-if="res.ownerId" />
-						</span>
-						<div><a href="/userbook/annuaire#[[res.ownerId]]">[[res.ownerDisplayName]]</a></div>
-						<span>[[res.title]]</span>
-						<span bind-html="res.description"></span>
-						<div><a href="[[res.url]]"><i18n>label.access</i18n> (<span translate content="[[res.app.toLowerCase()]]"></span>)</a></div>
-					</span>
-				</div>
+	<div ng-repeat="res in searchs.all  | orderBy: '-modified.$date'" class="row" bottom-scroll="loadPage()">
+		<div class="cell notification" style="width:79%">
+			<div class="content horizontal-spacing">
+				<span class="inline">
+					<span tooltip="tooltip.title"><b>[[res.title]]</b></span>
+					<span tooltip="tooltip.description" bind-html="(res.description) ? res.description : '<em>' + lang.translate('search.engine.noDescription') + '</em>'"></span>
+					<div><a tooltip="tooltip.access" href="[[res.url]]"><i18n>label.access</i18n> (<span translate content="[[res.app.toLowerCase()]]"></span>)</a></div>
+				</span>
 			</div>
 			<div class="notification-date">
 				<em class="low-importance right-magnet"><i18n>label.date</i18n> : [[formatDate(res.modified.$date)]]</em>
 			</div>
-		</article>
+		</div>
+		<div class="cell" style="width:1%;">&nbsp;</div>
+		<div class="cell notification" style="width:20%">
+			<div class="content horizontal-spacing">
+				<span class="inline">
+					<span class="avatar">
+						<i class="system-avatar" ng-if="!res.ownerId"></i>
+						<img ng-src="/userbook/avatar/[[res.ownerId]]?thumbnail=100x100" ng-if="res.ownerId" />
+					</span>
+					<div><a tooltip="tooltip.owner" href="/userbook/annuaire#[[res.ownerId]]">[[res.ownerDisplayName]]</a></div>
+				</span>
+			</div>
+		</div>
 	</div>
 	<!-- bug on include with ng-if -->
 	<div class="row" ng-if="searchs.all.length > 0">
