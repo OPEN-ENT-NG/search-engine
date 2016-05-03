@@ -2,7 +2,6 @@
 
 * Licence : AGPL v3
 * Développeur : ATOS
-* Financeur : Région Picardie, Conseil général 91, Région Poitou Charente
 * Description : Moteur de recherche sur l'ensemble des applications de l'ENT.
 
 # Documentation technique
