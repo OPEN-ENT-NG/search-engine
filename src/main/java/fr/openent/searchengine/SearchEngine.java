@@ -8,9 +8,9 @@
  * published by the Free Software Foundation (version 3 of the License).
  *
  * For the sake of explanation, any module that communicate over native
- * Web protocols, such as HTTP, with OPEN ENT is outside the scope of this
+ * Web protocols, such as HTTP, with OPEN ENT NG is outside the scope of this
  * license and could be license under its own terms. This is merely considered
- * normal use of OPEN ENT, and does not fall under the heading of "covered work".
+ * normal use of OPEN ENT NG, and does not fall under the heading of "covered work".
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
