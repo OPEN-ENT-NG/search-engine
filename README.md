@@ -1,7 +1,11 @@
 # À propos de l'application moteur de recherche
 
-* Licence : AGPL v3
-* Développeur : ATOS
+* Licence : [AGPL v3](http://www.gnu.org/licenses/agpl.txt) - Copyright Conseil Régional Nord Pas de Calais - Picardie
+
+* Développeur(s) : ATOS
+
+* Financeur(s) : Région Nord Pas de Calais-Picardie
+
 * Description : Moteur de recherche sur l'ensemble des applications de l'ENT.
 
 # Documentation technique
