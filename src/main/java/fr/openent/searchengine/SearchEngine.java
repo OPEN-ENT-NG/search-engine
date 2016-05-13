@@ -1,7 +1,7 @@
 /*
- * Copyright © OPEN ENT, 2016.
+ * Copyright © Conseil Régional Nord Pas de Calais - Picardie, 2016.
  *
- * This file is part of OPEN ENT. OPEN ENT is a versatile ENT Project based on the JVM and ENT Core Project.
+ * This file is part of OPEN ENT NG. OPEN ENT NG is a versatile ENT Project based on the JVM and ENT Core Project.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
