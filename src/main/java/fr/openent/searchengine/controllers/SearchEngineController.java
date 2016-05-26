@@ -185,8 +185,12 @@ public class SearchEngineController extends BaseController {
 												hasPartialResult = false;
 											}
 
-											renderJson(request, new JsonObject().putBoolean("status", hasPartialResult)
-													.putBoolean("hasMoreResult", isCompletedResult.contains(false)).putArray("results", results));
+											if (results.size() == 0 && currentPage.equals(0)) {
+												notFound(request, "search.engine.empty");
+											} else {
+												renderJson(request, new JsonObject().putBoolean("status", hasPartialResult)
+														.putBoolean("hasMoreResult", isCompletedResult.contains(false)).putArray("results", results));
+											}
 											eb.unregisterHandler(address, this);
 											if (log.isDebugEnabled()) {
 												log.debug("Search engine unregister handle : " + searchId);
