@@ -21,6 +21,7 @@ function SearchEngine($rootScope, $scope, template, date, lang, model, route){
 			$scope.hasMoreResult = [];
 			model.searchField.init();
 			$scope.searchField.words =  (params.searchtext === ' ') ? '' : params.searchtext;
+			model.searchs.clear();
 			model.searchTypes.sync(function() {
 				model.searchs.sync(false,
 					function(status, hasMoreResult){
@@ -58,6 +59,7 @@ function SearchEngine($rootScope, $scope, template, date, lang, model, route){
 		if(model.searchTypes.noFilter){
 			model.searchTypes.deselectAll();
 		}
+		model.searchs.clear();
 		model.searchs.sync(false,
 			function(status, hasMoreResult){
 				searchOk(status, hasMoreResult);
@@ -91,6 +93,7 @@ function SearchEngine($rootScope, $scope, template, date, lang, model, route){
 		model.searchField.init();
 		$scope.currentErrors = [];
 		$scope.hasMoreResult = [];
+		model.searchs.clear();
 		model.searchs.sync(false,
 				function(status, hasMoreResult){
 					searchOk(status, hasMoreResult);

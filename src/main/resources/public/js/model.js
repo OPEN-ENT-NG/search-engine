@@ -72,7 +72,6 @@ model.build = function (){
 				that.loading = true;
 
 			http().postJson('/searchengine', params).done(function(resultssearch){
-				that.loading = false;
 				if(resultssearch.results.length > 0){
 					that.addRange(resultssearch.results);
 					that.page++;
@@ -83,12 +82,16 @@ model.build = function (){
 				if(typeof cb === 'function'){
 					cb(resultssearch.status, resultssearch.hasMoreResult);
 				}
-			}).error(function(e){
 				that.loading = false;
+			}).error(function(e){
 				if(typeof cbe === 'function'){
 					cbe(model.parseError(e));
 				}
+				that.loading = false;
 			}).bind(this);
+		},
+		clear: function() {
+			this.all = [];
 		}
 	});
 
