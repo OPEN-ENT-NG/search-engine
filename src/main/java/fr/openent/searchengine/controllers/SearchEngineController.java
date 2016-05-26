@@ -195,7 +195,7 @@ public class SearchEngineController extends BaseController {
 									}
 								};
 
-								eb.registerHandler(address, searchHandler);
+								eb.registerLocalHandler(address, searchHandler);
 
 								publish(user, searchId, currentPage, searchWords, types, locale);
 							} else {
