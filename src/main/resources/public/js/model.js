@@ -6,7 +6,14 @@ function SearchField() {
 	}
 }
 
-function Search(){}
+function Search() {
+	this.expanded = false;
+	if (this.description && this.description.length >= 200) {
+		this.previewDesc = '<p>' + $('<div>' + this.description + '</div>').text().substring(0, 200) + '...' + '</p>';
+	} else {
+		this.previewDesc = this.description;
+	}
+}
 
 function SearchType(){
 	this.apply = function(){
