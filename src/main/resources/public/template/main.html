@@ -32,7 +32,7 @@
 	<div ng-repeat="res in searchs.all  | orderBy: '-modified.$date'" class="row" bottom-scroll="loadPage()">
 		<div class="cell notification" style="width:79%">
 			<div class="content horizontal-spacing">
-				<span class="inline" style="[[(res.description.length >= 200) ? 'cursor:pointer' : 'cursor:default' ]]" ng-click="res.expanded = !res.expanded">
+				<span class="inline" style="[[(res.description.length >= searchField.descriptionMaxSize) ? 'cursor:pointer' : 'cursor:default' ]]" ng-click="res.expanded = !res.expanded">
 					<span tooltip="tooltip.title"><b>[[res.title]]</b></span>
 					<span ng-show="!res.expanded">
 					     <span tooltip="tooltip.description" bind-html="(res.description) ? res.previewDesc : '<em>' + lang.translate('search.engine.noDescription') + '</em>'"></span>

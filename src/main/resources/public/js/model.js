@@ -1,5 +1,8 @@
+var descriptionMaxSize = 140;
+
 function SearchField() {
 	this.words = "";
+	this.descriptionMaxSize = descriptionMaxSize;
 	this.init = function() {
 		model.searchs.all = [];
 		model.searchs.page = 0;
@@ -8,8 +11,14 @@ function SearchField() {
 
 function Search() {
 	this.expanded = false;
-	if (this.description && this.description.length >= 200) {
-		this.previewDesc = '<p>' + $('<div>' + this.description + '</div>').text().substring(0, 200) + '...' + '</p>';
+
+	if (this.description) {
+		var descWithoutHref = this.description.replace(/href="([^"]+)/g, '');
+	   if (descWithoutHref.length >= descriptionMaxSize) {
+		   this.previewDesc = '<p>' + $('<div>' + this.description + '</div>').text().substring(0, descriptionMaxSize) + '...' + '</p>';
+	   } else {
+		   this.previewDesc = this.description;
+	   }
 	} else {
 		this.previewDesc = this.description;
 	}
