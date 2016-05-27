@@ -84,8 +84,7 @@ model.build = function (){
 			params.currentPage = that.page;
 			params.searchText = searchText;
 
-			if(paginate)
-				that.loading = true;
+			that.loading = true;
 
 			http().postJson('/searchengine', params).done(function(resultssearch){
 				if(resultssearch.results.length > 0){
