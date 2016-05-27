@@ -99,10 +99,10 @@ model.build = function (){
 				}
 				that.loading = false;
 			}).error(function(e){
+				that.loading = false;
 				if(typeof cbe === 'function'){
 					cbe(model.parseError(e));
 				}
-				that.loading = false;
 			}).bind(this);
 		},
 		clear: function() {
