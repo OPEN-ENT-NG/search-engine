@@ -6,6 +6,7 @@ function SearchField() {
 	this.init = function() {
 		model.searchs.all = [];
 		model.searchs.page = 0;
+		model.searchs.lastPage = false;
 	}
 }
 
