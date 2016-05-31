@@ -25,11 +25,30 @@ function Search() {
 }
 
 function SearchType(){
-	this.apply = function(){
+	this.apply = function() {
 		model.searchs.all = [];
 		model.searchs.page = 0;
-		if(model.searchTypes.selection().length > 0){
+		if (model.searchTypes.selection().length > 0) {
 			model.searchTypes.noFilter = false;
+		}
+		if (window.sessionStorage) {
+			var storedSearchFilter = JSON.parse(localStorage.getItem("storedSearchFilter"));
+
+			if (storedSearchFilter && storedSearchFilter.length > 0) {
+				if (this.selected) {
+					storedSearchFilter.push(this.data);
+					localStorage.setItem("storedSearchFilter", JSON.stringify(storedSearchFilter));
+				} else {
+					for (var i = 0; i < storedSearchFilter.length; i++) {
+						var currentFilter = storedSearchFilter[i];
+						if (this.data === currentFilter) {
+							storedSearchFilter.splice(i, 1);
+							break;
+						}
+					}
+					localStorage.setItem("storedSearchFilter", JSON.stringify(storedSearchFilter));
+				}
+			}
 		}
 	}
 }
@@ -116,9 +135,31 @@ model.build = function (){
 				this.load(resulttypes);
 
 				var that = this;
-				that.forEach(function(t){
-					t.selected = true;
-				});
+
+				if(window.sessionStorage) {
+					var storedSearchFilter = [];
+					var alreadySearchFilter = JSON.parse(localStorage.getItem("storedSearchFilter"));
+					if (alreadySearchFilter && alreadySearchFilter.length > 0) {
+						storedSearchFilter = alreadySearchFilter;
+
+						for(var i= 0; i < storedSearchFilter.length; i++) {
+							var currentFilter = storedSearchFilter[i];
+							that.forEach(function (type) {
+								if (type.data === currentFilter) type.selected = true;
+							});
+						}
+					} else {
+						that.forEach(function (type) {
+							storedSearchFilter.push(type.data);
+							type.selected = true;
+						});
+						localStorage.setItem("storedSearchFilter", JSON.stringify(storedSearchFilter));
+					}
+				} else {
+					that.forEach(function (type) {
+						type.selected = true;
+					});
+				}
 
 				if(typeof cb === 'function'){
 					cb();

@@ -10,7 +10,7 @@ routes.define(function($routeProvider){
 });
 
 
-function SearchEngine($rootScope, $scope, template, date, lang, model, route){
+function SearchEngine($rootScope, $scope, template, date, lang, model, route, $location){
 	/**
 	 * search engine routes definition
 	 */
@@ -21,7 +21,7 @@ function SearchEngine($rootScope, $scope, template, date, lang, model, route){
 			$scope.hasMoreResult = [];
 			model.searchField.init();
 			$scope.searchField.words =  (params.searchtext === ' ') ? '' : params.searchtext;
-			model.searchs.clear();
+
 			model.searchTypes.sync(function() {
 				model.searchs.sync(false,
 					function(status, hasMoreResult){
@@ -50,6 +50,10 @@ function SearchEngine($rootScope, $scope, template, date, lang, model, route){
 
 	$scope.formatDate = function(dateString){
 		return date.calendar(dateString);
+	};
+
+	var redirect = function(path){
+		$location.path(path);
 	};
 
 	$scope.selectFilter = function(filter){
@@ -93,10 +97,11 @@ function SearchEngine($rootScope, $scope, template, date, lang, model, route){
 		model.searchField.init();
 		$scope.currentErrors = [];
 		$scope.hasMoreResult = [];
-		model.searchs.clear();
+
 		model.searchs.sync(false,
 				function(status, hasMoreResult){
 					searchOk(status, hasMoreResult);
+					redirect('/' + model.searchField.words);
 				},
 				function(e) {
 					searchError(e);
