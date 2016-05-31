@@ -23,7 +23,7 @@
 	"search.engine.bad.search.criteria": "Les données à rechercher doivent contenir un mot de plus de {0} caractère(s).",
 	"search.engine.result.partial" : "Le résultat de la recherche est incomplet car le traitement est trop long, veuillez affiner vos critères de recherche.",
 	"search.engine.has.more" : "Tous les résultats ne sont pas affichés. Veuillez utiliser la barre de scroll pour afficher la globalité des résultats de cette recherche.",
-	"search.engine.empty" : "Aucune ressource ne correspond à votre critères de recherche.",
+	"search.engine.empty" : "Aucune ressource ne correspond à vos critères de recherche.",
 	"search.engine.has.nomore" : "Tous les résultats en correspondance avec vos critères de recherche sont affichés.",
 	"search.engine.error.unknown" : "Erreur technique imprévue.",
 	"search.engine.noDescription" : "Aucune description renseignée.",
