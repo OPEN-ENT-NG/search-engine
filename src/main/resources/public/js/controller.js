@@ -94,19 +94,7 @@ function SearchEngine($rootScope, $scope, template, date, lang, model, route, $l
 	};
 
 	$scope.searching = function() {
-		model.searchField.init();
-		$scope.currentErrors = [];
-		$scope.hasMoreResult = [];
-
-		model.searchs.sync(false,
-				function(status, hasMoreResult){
-					searchOk(status, hasMoreResult);
-					redirect('/' + model.searchField.words);
-				},
-				function(e) {
-					searchError(e);
-				}
-		);
+		redirect('/' + model.searchField.words);
 	};
 
 
