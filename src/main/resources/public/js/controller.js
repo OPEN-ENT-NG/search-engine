@@ -101,7 +101,6 @@ function SearchEngine($rootScope, $scope, template, date, lang, model, route, $l
 	var searchOk = function(status, hasMoreResult){
 		if (status) {
 			$scope.currentErrors.push({error: 'search.engine.result.partial'});
-			notify.info('search.engine.result.partial');
 		}
 		$scope.hasMoreResult.push((hasMoreResult) ?
 			{message: 'search.engine.has.more'} :
@@ -110,7 +109,6 @@ function SearchEngine($rootScope, $scope, template, date, lang, model, route, $l
 	};
 
 	var searchError = function(e){
-		notify.error(e.error);
 		$scope.currentErrors.push(e);
 		$scope.$apply();
 	};
