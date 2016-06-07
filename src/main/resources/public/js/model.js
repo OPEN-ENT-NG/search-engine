@@ -33,12 +33,12 @@ function SearchType(){
 			model.searchTypes.noFilter = false;
 		}
 		if (window.sessionStorage) {
-			var storedSearchFilter = JSON.parse(localStorage.getItem("storedSearchFilter"));
+			var storedSearchFilter = JSON.parse(sessionStorage.getItem("storedSearchFilter"));
 
 			if (storedSearchFilter && storedSearchFilter.length > 0) {
 				if (this.selected) {
 					storedSearchFilter.push(this.data);
-					localStorage.setItem("storedSearchFilter", JSON.stringify(storedSearchFilter));
+					sessionStorage.setItem("storedSearchFilter", JSON.stringify(storedSearchFilter));
 				} else {
 					for (var i = 0; i < storedSearchFilter.length; i++) {
 						var currentFilter = storedSearchFilter[i];
@@ -47,7 +47,7 @@ function SearchType(){
 							break;
 						}
 					}
-					localStorage.setItem("storedSearchFilter", JSON.stringify(storedSearchFilter));
+					sessionStorage.setItem("storedSearchFilter", JSON.stringify(storedSearchFilter));
 				}
 			}
 		}
@@ -139,7 +139,7 @@ model.build = function (){
 
 				if(window.sessionStorage) {
 					var storedSearchFilter = [];
-					var alreadySearchFilter = JSON.parse(localStorage.getItem("storedSearchFilter"));
+					var alreadySearchFilter = JSON.parse(sessionStorage.getItem("storedSearchFilter"));
 					if (alreadySearchFilter && alreadySearchFilter.length > 0) {
 						storedSearchFilter = alreadySearchFilter;
 
@@ -154,7 +154,7 @@ model.build = function (){
 							storedSearchFilter.push(type.data);
 							type.selected = true;
 						});
-						localStorage.setItem("storedSearchFilter", JSON.stringify(storedSearchFilter));
+						sessionStorage.setItem("storedSearchFilter", JSON.stringify(storedSearchFilter));
 					}
 				} else {
 					that.forEach(function (type) {
