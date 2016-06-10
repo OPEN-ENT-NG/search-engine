@@ -186,7 +186,8 @@ public class SearchEngineController extends BaseController {
 											}
 
 											if (results.size() == 0 && currentPage.equals(0)) {
-												notFound(request, "search.engine.empty");
+												//fixme can't use 404 because reverse proxy converts this error to html
+												badRequest(request, "search.engine.empty");
 											} else {
 												renderJson(request, new JsonObject().putBoolean("status", hasPartialResult)
 														.putBoolean("hasMoreResult", isCompletedResult.contains(false)).putArray("results", results));
