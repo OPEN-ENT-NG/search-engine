@@ -177,7 +177,7 @@ public class SearchEngineController extends BaseController {
 
 										if (appRegisteredUntreated.isEmpty() || treatyIsSoLong[0]) {
 											final Boolean hasPartialResult;
-											if (treatyIsSoLong[0]) {
+											if (treatyIsSoLong[0] && !appRegisteredUntreated.isEmpty()) {
 												hasPartialResult = true;
 												log.warn("search engine performed a partial search for the term configuration was exceeded");
 											} else {
