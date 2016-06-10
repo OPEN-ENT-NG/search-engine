@@ -280,7 +280,7 @@ public class SearchEngineController extends BaseController {
 				final List<String> words = Arrays.asList(searchTextTreaty.split(" "));
 				//words search
 				for (String w : words) {
-					final String wTraity = w.replaceAll("\\p{Punct}+","");
+					final String wTraity = w.replaceAll("(?!')\\p{Punct}", "");
 					if (wTraity.length() >= this.searchWordMinSize) {
 						searchWords.addString(wTraity);
 					}
