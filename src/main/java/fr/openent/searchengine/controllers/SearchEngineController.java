@@ -76,7 +76,7 @@ public class SearchEngineController extends BaseController {
 
 	@Get("")
 	@ApiDoc("Allows to display the main view")
-	@SecuredAction(value = "searchengine.auth", type = ActionType.AUTHENTICATED)
+	@SecuredAction("searchengine.auth")
 	public void view(HttpServerRequest request) {
 		renderView(request);
 
