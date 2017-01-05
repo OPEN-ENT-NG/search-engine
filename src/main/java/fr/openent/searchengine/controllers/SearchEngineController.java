@@ -204,7 +204,7 @@ public class SearchEngineController extends BaseController {
 
 								publish(user, searchId, currentPage, searchWords, types, locale);
 							} else {
-								Renders.badRequest(request, i18n.translate("search.engine.bad.search.criteria", I18n.acceptLanguage(request),
+								Renders.badRequest(request, i18n.translate("search.engine.bad.search.criteria", Renders.getHost(request), I18n.acceptLanguage(request),
 										SearchEngineController.this.searchWordMinSize.toString()));
 							}
 						}
