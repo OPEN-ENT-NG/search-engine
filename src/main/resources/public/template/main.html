@@ -49,15 +49,17 @@
 		</div>
 		<div class="cell" style="width:1%;">&nbsp;</div>
 		<div class="cell notification" style="width:20%">
-			<div class="content horizontal-spacing">
-				<span class="inline">
-					<span class="avatar">
-						<i class="system-avatar" ng-if="!res.ownerId"></i>
-						<img ng-src="/userbook/avatar/[[res.ownerId]]?thumbnail=100x100" ng-if="res.ownerId" />
+			<article>
+				<div class="content horizontal-spacing">
+					<span class="inline">
+						<span class="avatar">
+							<i class="system-avatar" ng-if="!res.ownerId"></i>
+							<img ng-src="/userbook/avatar/[[res.ownerId]]?thumbnail=100x100" ng-if="res.ownerId" />
+						</span>
+						<div><a tooltip="tooltip.owner" href="/userbook/annuaire#[[res.ownerId]]">[[res.ownerDisplayName]]</a></div>
 					</span>
-					<div><a tooltip="tooltip.owner" href="/userbook/annuaire#[[res.ownerId]]">[[res.ownerDisplayName]]</a></div>
-				</span>
-			</div>
+				</div>
+			</article>
 		</div>
 	</div>
 	<!-- bug on include with ng-if -->
