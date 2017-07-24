@@ -94,6 +94,10 @@ function SearchEngine($rootScope, $scope, template, date, lang, model, route, $l
 	};
 
 	$scope.searching = function() {
+		if (model.searchField.words == undefined) {
+			redirect('/');
+			return;
+		}
 		redirect('/' + model.searchField.words);
 	};
 
