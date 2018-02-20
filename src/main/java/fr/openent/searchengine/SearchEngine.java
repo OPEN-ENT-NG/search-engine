@@ -25,7 +25,7 @@ import org.entcore.common.http.BaseServer;
 public class SearchEngine extends BaseServer {
 
 	@Override
-	public void start() {
+	public void start() throws Exception {
 		super.start();
 
 		addController(new SearchEngineController(config.getInteger("max-sec-time-allowed", 4),

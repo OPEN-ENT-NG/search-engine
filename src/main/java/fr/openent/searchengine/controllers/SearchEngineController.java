@@ -29,19 +29,21 @@ import fr.wseduc.webutils.I18n;
 import fr.wseduc.webutils.http.BaseController;
 import fr.wseduc.webutils.http.Renders;
 import fr.wseduc.webutils.request.RequestUtils;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.shareddata.LocalMap;
 import org.entcore.common.events.EventStore;
 import org.entcore.common.events.EventStoreFactory;
 import org.entcore.common.search.SearchingHandler;
 import org.entcore.common.user.UserInfos;
 import org.entcore.common.user.UserUtils;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.Vertx;
-import org.vertx.java.core.eventbus.Message;
-import org.vertx.java.core.http.HttpServerRequest;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpServerRequest;
 import org.vertx.java.core.http.RouteMatcher;
-import org.vertx.java.core.json.JsonArray;
-import org.vertx.java.core.json.JsonObject;
-import org.vertx.java.platform.Container;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+
 
 import java.util.*;
 
@@ -58,9 +60,9 @@ public class SearchEngineController extends BaseController {
 	private static final String[] RESULT_COLUMNS_HEADER = new String[] {"title", "description", "modified", "ownerDisplayName", "ownerId", "url"};
 
 	@Override
-	public void init(Vertx vertx, Container container, RouteMatcher rm,
+	public void init(Vertx vertx, JsonObject config, RouteMatcher rm,
 					 Map<String, fr.wseduc.webutils.security.SecuredAction> securedActions) {
-		super.init(vertx, container, rm, securedActions);
+		super.init(vertx, config, rm, securedActions);
 		eventStore = EventStoreFactory.getFactory().getEventStore(SearchEngine.class.getSimpleName());
 	}
 
@@ -91,9 +93,10 @@ public class SearchEngineController extends BaseController {
 			public void handle(final UserInfos user) {
 				if (user != null) {
 					final JsonArray types = new JsonArray();
-					final Set<String> appRegistered = vertx.sharedData().getSet(SearchingHandler.class.getName());
-					for (final String app : appRegistered) {
-						types.addString(app);
+					final LocalMap<String, String> appRegistered = vertx.sharedData()
+							.getLocalMap(SearchingHandler.class.getName());
+					for (final String app : appRegistered.keySet()) {
+						types.add(app);
 					}
 					renderJson(request, types);
 				} else {
@@ -120,7 +123,7 @@ public class SearchEngineController extends BaseController {
 						public void handle(JsonObject data) {
 							final JsonArray searchWords = checkAndComposeWordFromSearchText(data.getString("searchText", ""));
 							final Integer currentPage = data.getInteger("currentPage", 0);
-							final JsonArray types = data.getArray("filter", new JsonArray());
+							final JsonArray types = data.getJsonArray("filter", new JsonArray());
 							final String locale = I18n.acceptLanguage(request);
 
 							if (searchWords.size() != 0 && types.size() != 0) {
@@ -136,10 +139,13 @@ public class SearchEngineController extends BaseController {
 									}
 								});
 
-								final Set<String> appRegistered = vertx.sharedData().getSet(SearchingHandler.class.getName());
-								final Set<String> appRegisteredUntreated = new HashSet<String>(appRegistered);
+								final LocalMap<String, String> appRegistered = vertx.sharedData()
+										.getLocalMap(SearchingHandler.class.getName());
+								final Set<String> appRegisteredUntreated = new HashSet<>(appRegistered.keySet());
 								final JsonArray results = new JsonArray();
 								final String address = "search." + searchId;
+
+								final MessageConsumer<JsonObject> messageConsumer = eb.localConsumer(address);
 
 								final Handler<Message<JsonObject>> searchHandler = new Handler<Message<JsonObject>>() {
 									@Override
@@ -153,9 +159,9 @@ public class SearchEngineController extends BaseController {
 										}
 
 										final String replyMessage = checkCurrentResult(event.body().getValue("results"));
-										event.reply(new JsonObject().putString("message", replyMessage));
+										event.reply(new JsonObject().put("message", replyMessage));
 
-										final JsonArray responseResults = event.body().getArray("results");
+										final JsonArray responseResults = event.body().getJsonArray("results");
 
 										if ("ok".equals(replyMessage) && responseResults.size() > 0) {
 											//check for feedback on next result
@@ -168,10 +174,10 @@ public class SearchEngineController extends BaseController {
 												realSizeResult = responseResults.size();
 											}
 											for (int i=0;i<realSizeResult;i++) {
-												final JsonObject jo = (JsonObject) responseResults.get(i);
+												final JsonObject jo = responseResults.getJsonObject(i);
 												//add the origin of the result
-												jo.putString("app", app);
-												results.addObject(jo);
+												jo.put("app", app);
+												results.add(jo);
 											}
 										}
 
@@ -189,10 +195,10 @@ public class SearchEngineController extends BaseController {
 												//fixme can't use 404 because reverse proxy converts this error to html
 												badRequest(request, "search.engine.empty");
 											} else {
-												renderJson(request, new JsonObject().putBoolean("status", hasPartialResult)
-														.putBoolean("hasMoreResult", isCompletedResult.contains(false)).putArray("results", results));
+												renderJson(request, new JsonObject().put("status", hasPartialResult)
+														.put("hasMoreResult", isCompletedResult.contains(false)).put("results", results));
 											}
-											eb.unregisterHandler(address, this);
+											messageConsumer.unregister();
 											if (log.isDebugEnabled()) {
 												log.debug("Search engine unregister handle : " + searchId);
 											}
@@ -200,7 +206,7 @@ public class SearchEngineController extends BaseController {
 									}
 								};
 
-								eb.registerLocalHandler(address, searchHandler);
+								messageConsumer.handler(searchHandler);
 
 								publish(user, searchId, currentPage, searchWords, types, locale);
 							} else {
@@ -227,18 +233,18 @@ public class SearchEngineController extends BaseController {
 			final JsonArray jArray = (JsonArray) results;
 
 			if (jArray.size() != 0) {
-				final Object obj = jArray.get(0);
+				final Object obj = jArray.getValue(0);
 				if (!(obj instanceof JsonObject)) {
 					message = "Contain of JsonArray must be JsonObject";
 				} else {
 					final JsonObject jObj = (JsonObject) obj;
 					if (jObj.size() != RESULT_COLUMNS_HEADER.length ||
-							!jObj.containsField(RESULT_COLUMNS_HEADER[0]) ||
-							!jObj.containsField(RESULT_COLUMNS_HEADER[1]) ||
-							!jObj.containsField(RESULT_COLUMNS_HEADER[2]) ||
-							!jObj.containsField(RESULT_COLUMNS_HEADER[3]) ||
-							!jObj.containsField(RESULT_COLUMNS_HEADER[4]) ||
-							!jObj.containsField(RESULT_COLUMNS_HEADER[5])) {
+							!jObj.containsKey(RESULT_COLUMNS_HEADER[0]) ||
+							!jObj.containsKey(RESULT_COLUMNS_HEADER[1]) ||
+							!jObj.containsKey(RESULT_COLUMNS_HEADER[2]) ||
+							!jObj.containsKey(RESULT_COLUMNS_HEADER[3]) ||
+							!jObj.containsKey(RESULT_COLUMNS_HEADER[4]) ||
+							!jObj.containsKey(RESULT_COLUMNS_HEADER[5])) {
 						message = "JsonObject must contain six entries : " + RESULT_COLUMNS_HEADER[0] +
 								"," + RESULT_COLUMNS_HEADER[1] + "," + RESULT_COLUMNS_HEADER[2] + "," + RESULT_COLUMNS_HEADER[3]
 								+ "," + RESULT_COLUMNS_HEADER[4] + "," + RESULT_COLUMNS_HEADER[5];
@@ -255,17 +261,17 @@ public class SearchEngineController extends BaseController {
 
 	private void publish(UserInfos user, String searchId, Integer currentPage, JsonArray searchWords,
 						 JsonArray types, String locale) {
-		final JsonObject message = new JsonObject().putString("searchId", searchId);
+		final JsonObject message = new JsonObject().put("searchId", searchId);
 
-		message.putString("userId", user.getUserId());
-		message.putValue("groupIds",  new JsonArray(user.getGroupsIds().toArray()));
-		message.putArray("searchWords", searchWords);
-		message.putNumber("page", currentPage);
+		message.put("userId", user.getUserId());
+		message.put("groupIds",  new JsonArray(user.getGroupsIds()));
+		message.put("searchWords", searchWords);
+		message.put("page", currentPage);
 		//Increase the size page to obtain a feedback on next results
-		message.putNumber("limit", this.pagingSizePerCollection + 1);
-		message.putArray("columnsHeader", new JsonArray(RESULT_COLUMNS_HEADER));
-		message.putArray("appFilters", types);
-		message.putString("locale", locale);
+		message.put("limit", this.pagingSizePerCollection + 1);
+		message.put("columnsHeader", new JsonArray(Arrays.asList(RESULT_COLUMNS_HEADER)));
+		message.put("appFilters", types);
+		message.put("locale", locale);
 
 		eb.publish("search.searching", message);
 	}
@@ -282,7 +288,7 @@ public class SearchEngineController extends BaseController {
 				for (String w : words) {
 					final String wTraity = w.replaceAll("(?!')\\p{Punct}", "");
 					if (wTraity.length() >= this.searchWordMinSize) {
-						searchWords.addString(wTraity);
+						searchWords.add(wTraity);
 					}
 				}
 			}
