@@ -1,5 +1,5 @@
     {
-      "name": "fr.openent~search-engine~1.3.0",
+      "name": "fr.openent~search-engine~1.3-SNAPSHOT",
       "config": {
         "main" : "fr.openent.searchengine.SearchEngine",
         "port" : 8053,
