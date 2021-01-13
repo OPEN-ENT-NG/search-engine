@@ -104,11 +104,13 @@ public class SearchEngineController extends BaseController {
 	@Post("")
 	@SecuredAction(value = "searchengine.view", type = ActionType.AUTHENTICATED)
 	public void search(final HttpServerRequest request) {
+		request.pause();
 		UserUtils.getUserInfos(eb, request, new Handler<UserInfos>() {
 			public void handle(final UserInfos user) {
 				if (user != null || request.params().contains("user")) {
 					if (user == null && request.params().contains("user")) {
 						UserUtils.getUserInfos(eb, request.getParam("user"), basicUser -> {
+							request.resume();
 							if (basicUser != null) {
 								processSearch(request, basicUser);
 							} else {
@@ -116,9 +118,11 @@ public class SearchEngineController extends BaseController {
 							}
 						});
 					} else {
+						request.resume();
 						processSearch(request, user);
 					}
 				} else {
+					request.resume();
 					if (log.isDebugEnabled()) {
 						log.debug("User not found in session.");
 					}
