@@ -21,7 +21,7 @@
 
     <properties>
         <web-utils.version>3.0-SNAPSHOT</web-utils.version>
-        <entcore.version>6.0-SNAPSHOT</entcore.version>
+        <entcore.version>6.0-develop-pedago-SNAPSHOT</entcore.version>
     </properties>
 
     <repositories>
