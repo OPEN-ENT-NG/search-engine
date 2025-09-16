@@ -27,10 +27,14 @@ public class SearchEngine extends BaseServer {
 
 	@Override
 	public void start(Promise<Void> startPromise) throws Exception {
-		super.start(startPromise);
-
-		addController(new SearchEngineController(config.getInteger("max-sec-time-allowed", 4),
-				config.getInteger("paging-size-per-collection", 10), config.getInteger("search-word-min-size", 4)));
+    final Promise<Void> promise = Promise.promise();
+		super.start(promise);
+    promise.future().map(e ->
+      addController(new SearchEngineController(config.getInteger("max-sec-time-allowed", 4),
+        config.getInteger("paging-size-per-collection", 10), config.getInteger("search-word-min-size", 4)))
+    )
+    .onSuccess(e -> startPromise.complete())
+    .onFailure(startPromise::fail);
 	}
 
 }
