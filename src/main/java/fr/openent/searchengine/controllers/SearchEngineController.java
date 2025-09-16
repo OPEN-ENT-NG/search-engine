@@ -36,7 +36,7 @@ import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.shareddata.LocalMap;
+import io.vertx.core.shareddata.AsyncMap;
 import org.entcore.common.events.EventStore;
 import org.entcore.common.events.EventStoreFactory;
 import org.entcore.common.search.SearchingHandler;
@@ -89,12 +89,15 @@ public class SearchEngineController extends BaseController {
 	@SecuredAction(value = "searchengine.auth", type = ActionType.AUTHENTICATED)
 	public void listTypes(final HttpServerRequest request) {
 		final JsonArray types = new JsonArray();
-		final LocalMap<String, String> appRegistered = vertx.sharedData()
-				.getLocalMap(SearchingHandler.class.getName());
-		for (final String app : appRegistered.keySet()) {
-			types.add(app);
-		}
-		renderJson(request, types);
+    vertx.sharedData().<String, String>getAsyncMap(SearchingHandler.class.getName())
+      .flatMap(AsyncMap::keys)
+      .onSuccess(apps -> {
+        for (String app : apps) {
+          types.add(app);
+        }
+        renderJson(request, types);
+      })
+      .onFailure(th -> renderError(request, new JsonObject().put("error", th.getMessage())));
 	}
 
 	/**
@@ -153,76 +156,81 @@ public class SearchEngineController extends BaseController {
 						}
 					});
 
-					final LocalMap<String, String> appRegistered = vertx.sharedData()
-							.getLocalMap(SearchingHandler.class.getName());
-					final Set<String> appRegisteredUntreated = new HashSet<>(appRegistered.keySet());
-					final JsonArray results = new JsonArray();
-					final String address = "search." + searchId;
+					vertx.sharedData().getAsyncMap(SearchingHandler.class.getName())
+            .flatMap(AsyncMap::keys)
+            .onSuccess(appRegisteredUntreated -> {
+              final JsonArray results = new JsonArray();
+              final String address = "search." + searchId;
 
-					final MessageConsumer<JsonObject> messageConsumer = eb.localConsumer(address);
+              final MessageConsumer<JsonObject> messageConsumer = eb.localConsumer(address);
 
-					final Handler<Message<JsonObject>> searchHandler = new Handler<Message<JsonObject>>() {
-						@Override
-						public void handle(Message<JsonObject> event) {
-							final String app = event.body().getString("application");
-							appRegisteredUntreated.remove(app);
+              final Handler<Message<JsonObject>> searchHandler = new Handler<Message<JsonObject>>() {
+                @Override
+                public void handle(Message<JsonObject> event) {
+                  final String app = event.body().getString("application");
+                  appRegisteredUntreated.remove(app);
 
-							if (log.isDebugEnabled()) {
-								log.debug("Search engine " + searchId + ", handle a result for : " +
-										app);
-							}
+                  if (log.isDebugEnabled()) {
+                    log.debug("Search engine " + searchId + ", handle a result for : " +
+                      app);
+                  }
 
-							final String replyMessage = checkCurrentResult(event.body().getValue("results"));
-							event.reply(new JsonObject().put("message", replyMessage));
+                  final String replyMessage = checkCurrentResult(event.body().getValue("results"));
+                  event.reply(new JsonObject().put("message", replyMessage));
 
-							final JsonArray responseResults = event.body().getJsonArray("results");
+                  final JsonArray responseResults = event.body().getJsonArray("results");
 
-							if ("ok".equals(replyMessage) && responseResults.size() > 0) {
-								//check for feedback on next result
-								final int realSizeResult;
-								if (responseResults.size() > SearchEngineController.this.pagingSizePerCollection) {
-									isCompletedResult.add(false);
-									//delete the marker
-									realSizeResult = responseResults.size() - 1;
-								} else {
-									realSizeResult = responseResults.size();
-								}
-								for (int i = 0; i < realSizeResult; i++) {
-									final JsonObject jo = responseResults.getJsonObject(i);
-									//add the origin of the result
-									jo.put("app", app);
-									results.add(jo);
-								}
-							}
+                  if ("ok".equals(replyMessage) && responseResults.size() > 0) {
+                    //check for feedback on next result
+                    final int realSizeResult;
+                    if (responseResults.size() > SearchEngineController.this.pagingSizePerCollection) {
+                      isCompletedResult.add(false);
+                      //delete the marker
+                      realSizeResult = responseResults.size() - 1;
+                    } else {
+                      realSizeResult = responseResults.size();
+                    }
+                    for (int i = 0; i < realSizeResult; i++) {
+                      final JsonObject jo = responseResults.getJsonObject(i);
+                      //add the origin of the result
+                      jo.put("app", app);
+                      results.add(jo);
+                    }
+                  }
 
-							if (appRegisteredUntreated.isEmpty() || treatyIsSoLong[0]) {
-								final Boolean hasPartialResult;
-								if (treatyIsSoLong[0] && !appRegisteredUntreated.isEmpty()) {
-									hasPartialResult = true;
-									log.warn("search engine performed a partial search for the term configuration was exceeded");
-								} else {
-									vertx.cancelTimer(timerID);
-									hasPartialResult = false;
-								}
+                  if (appRegisteredUntreated.isEmpty() || treatyIsSoLong[0]) {
+                    final Boolean hasPartialResult;
+                    if (treatyIsSoLong[0] && !appRegisteredUntreated.isEmpty()) {
+                      hasPartialResult = true;
+                      log.warn("search engine performed a partial search for the term configuration was exceeded");
+                    } else {
+                      vertx.cancelTimer(timerID);
+                      hasPartialResult = false;
+                    }
 
-								if (results.size() == 0 && currentPage.equals(0)) {
-									//fixme can't use 404 because reverse proxy converts this error to html
-									badRequest(request, "search.engine.empty");
-								} else {
-									renderJson(request, new JsonObject().put("status", hasPartialResult)
-											.put("hasMoreResult", isCompletedResult.contains(false)).put("results", results));
-								}
-								messageConsumer.unregister();
-								if (log.isDebugEnabled()) {
-									log.debug("Search engine unregister handle : " + searchId);
-								}
-							}
-						}
-					};
+                    if (results.size() == 0 && currentPage.equals(0)) {
+                      //fixme can't use 404 because reverse proxy converts this error to html
+                      badRequest(request, "search.engine.empty");
+                    } else {
+                      renderJson(request, new JsonObject().put("status", hasPartialResult)
+                        .put("hasMoreResult", isCompletedResult.contains(false)).put("results", results));
+                    }
+                    messageConsumer.unregister();
+                    if (log.isDebugEnabled()) {
+                      log.debug("Search engine unregister handle : " + searchId);
+                    }
+                  }
+                }
+              };
 
-					messageConsumer.handler(searchHandler);
+              messageConsumer.handler(searchHandler);
 
-					publish(user, searchId, currentPage, searchWords, types, locale);
+              publish(user, searchId, currentPage, searchWords, types, locale);
+            })
+            .onFailure(th -> {
+              log.error("Error while processing search", th);
+              Renders.renderError(request);
+            });
 				} else {
 					Renders.badRequest(request, i18n.translate("search.engine.bad.search.criteria", Renders.getHost(request), I18n.acceptLanguage(request),
 							SearchEngineController.this.searchWordMinSize.toString()));
