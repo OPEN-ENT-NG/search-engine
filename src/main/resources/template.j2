@@ -2,6 +2,11 @@
   "name": "fr.openent~search-engine",
   "config": {
     "main" : "fr.openent.searchengine.SearchEngine",
+    "probes": [
+      "org.entcore.common.http.health.Neo4jProbe",
+      "org.entcore.common.http.health.MongoProbe",
+      "fr.wseduc.webutils.metrics.EventBusProbe"
+    ],
     "port" : 8053,
     "csrf-token": {{ csrfToken | default('true') }},
     "app-name" : "Searchengine",
