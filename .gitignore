@@ -25,3 +25,4 @@ developer.id
 *.mod.json
 .env
 dependency-reduced-pom.xml
+edifice
