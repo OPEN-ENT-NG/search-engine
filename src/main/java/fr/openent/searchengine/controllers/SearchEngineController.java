@@ -162,7 +162,7 @@ public class SearchEngineController extends BaseController {
               final JsonArray results = new JsonArray();
               final String address = "search." + searchId;
 
-              final MessageConsumer<JsonObject> messageConsumer = eb.localConsumer(address);
+              final MessageConsumer<JsonObject> messageConsumer = eb.consumer(address);
 
               final Handler<Message<JsonObject>> searchHandler = new Handler<Message<JsonObject>>() {
                 @Override
