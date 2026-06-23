@@ -45,6 +45,7 @@ import org.entcore.common.user.UserUtils;
 import org.vertx.java.core.http.RouteMatcher;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Vert.x backend controller.
@@ -144,99 +145,95 @@ public class SearchEngineController extends BaseController {
 				final String locale = I18n.acceptLanguage(request);
 
 				if (searchWords.size() != 0 && types.size() != 0) {
-					final String searchId = UUID.randomUUID().toString();
-					final Boolean[] treatyIsSoLong = new Boolean[]{Boolean.FALSE};
-					//Check is a completed result
-					final Set<Boolean> isCompletedResult = new HashSet<Boolean>();
-					//Pending vert.x 3 with TimeoutHandler
-					final long timerID = vertx.setTimer(SearchEngineController.this.maxSecTimeAllowed * 1000, new Handler<Long>() {
-						@Override
-						public void handle(Long aLong) {
-							treatyIsSoLong[0] = true;
-						}
-					});
-
 					vertx.sharedData().getAsyncMap(SearchingHandler.class.getName())
-            .flatMap(AsyncMap::keys)
-            .onSuccess(appRegisteredUntreated -> {
-              final JsonArray results = new JsonArray();
-              final String address = "search." + searchId;
+					.flatMap(AsyncMap::keys)
+					.onSuccess(appRegisteredUntreated -> {
+						final AtomicBoolean isCompletedResult = new AtomicBoolean(true);
+						final String searchId = UUID.randomUUID().toString();
+						final JsonArray results = new JsonArray();
+						final String address = "search." + searchId;
+						final MessageConsumer<JsonObject> messageConsumer = eb.consumer(address);
 
-              final MessageConsumer<JsonObject> messageConsumer = eb.consumer(address);
+						final long timerID = vertx.setTimer(SearchEngineController.this.maxSecTimeAllowed * 1000L, nalong -> {
+							isCompletedResult.set(false);
+							endSearch(true, isCompletedResult.get(), nalong, appRegisteredUntreated, results, currentPage, messageConsumer, request, searchId);
+						});
+						messageConsumer.handler(event -> {
+						  final String app = event.body().getString("application");
+						  appRegisteredUntreated.remove(app);
+						  if (log.isDebugEnabled()) {
+							  log.debug("Search engine " + searchId + ", handle a result for : " +
+									  app);
+							  log.debug("Still waiting for : " + appRegisteredUntreated);
+						  }
 
-              final Handler<Message<JsonObject>> searchHandler = new Handler<Message<JsonObject>>() {
-                @Override
-                public void handle(Message<JsonObject> event) {
-                  final String app = event.body().getString("application");
-                  appRegisteredUntreated.remove(app);
+						  final String replyMessage = checkCurrentResult(event.body().getValue("results"));
+						  event.reply(new JsonObject().put("message", replyMessage));
 
-                  if (log.isDebugEnabled()) {
-                    log.debug("Search engine " + searchId + ", handle a result for : " +
-                      app);
-                  }
+						  final JsonArray responseResults = event.body().getJsonArray("results");
 
-                  final String replyMessage = checkCurrentResult(event.body().getValue("results"));
-                  event.reply(new JsonObject().put("message", replyMessage));
+						  if ("ok".equals(replyMessage) && !responseResults.isEmpty()) {
+							  //check for feedback on next result
+							  final int realSizeResult;
+							  if (responseResults.size() > SearchEngineController.this.pagingSizePerCollection) {
+								  isCompletedResult.set(false);
+								  //delete the marker
+								  realSizeResult = responseResults.size() - 1;
+							  } else {
+								  realSizeResult = responseResults.size();
+							  }
+							  for (int i = 0; i < realSizeResult; i++) {
+								  final JsonObject jo = responseResults.getJsonObject(i);
+								  //add the origin of the result
+								  jo.put("app", app);
+								  results.add(jo);
+							  }
+						  }
+						  if(appRegisteredUntreated.isEmpty()) {
+							  endSearch(false, isCompletedResult.get(), timerID, appRegisteredUntreated, results, currentPage, messageConsumer, request, searchId);
+						  }
+					  });
 
-                  final JsonArray responseResults = event.body().getJsonArray("results");
-
-                  if ("ok".equals(replyMessage) && responseResults.size() > 0) {
-                    //check for feedback on next result
-                    final int realSizeResult;
-                    if (responseResults.size() > SearchEngineController.this.pagingSizePerCollection) {
-                      isCompletedResult.add(false);
-                      //delete the marker
-                      realSizeResult = responseResults.size() - 1;
-                    } else {
-                      realSizeResult = responseResults.size();
-                    }
-                    for (int i = 0; i < realSizeResult; i++) {
-                      final JsonObject jo = responseResults.getJsonObject(i);
-                      //add the origin of the result
-                      jo.put("app", app);
-                      results.add(jo);
-                    }
-                  }
-
-                  if (appRegisteredUntreated.isEmpty() || treatyIsSoLong[0]) {
-                    final Boolean hasPartialResult;
-                    if (treatyIsSoLong[0] && !appRegisteredUntreated.isEmpty()) {
-                      hasPartialResult = true;
-                      log.warn("search engine performed a partial search for the term configuration was exceeded");
-                    } else {
-                      vertx.cancelTimer(timerID);
-                      hasPartialResult = false;
-                    }
-
-                    if (results.size() == 0 && currentPage.equals(0)) {
-                      //fixme can't use 404 because reverse proxy converts this error to html
-                      badRequest(request, "search.engine.empty");
-                    } else {
-                      renderJson(request, new JsonObject().put("status", hasPartialResult)
-                        .put("hasMoreResult", isCompletedResult.contains(false)).put("results", results));
-                    }
-                    messageConsumer.unregister();
-                    if (log.isDebugEnabled()) {
-                      log.debug("Search engine unregister handle : " + searchId);
-                    }
-                  }
-                }
-              };
-
-              messageConsumer.handler(searchHandler);
-
-              publish(user, searchId, currentPage, searchWords, types, locale);
-            })
-            .onFailure(th -> {
-              log.error("Error while processing search", th);
-              Renders.renderError(request);
-            });
+					  publish(user, searchId, currentPage, searchWords, types, locale);
+					})
+					.onFailure(th -> {
+					  log.error("Error while processing search", th);
+					  Renders.renderError(request);
+					});
 				} else {
 					Renders.badRequest(request, i18n.translate("search.engine.bad.search.criteria", Renders.getHost(request), I18n.acceptLanguage(request),
 							SearchEngineController.this.searchWordMinSize.toString()));
 				}
 			}
 		});
+	}
+
+	private void endSearch(final boolean prematureEnding,
+						   final boolean completeResults,
+						   final long timerId, final Set<Object> appRegisteredUntreated,
+						   final JsonArray results,
+						   final Integer currentPage,
+						   final MessageConsumer<JsonObject> messageConsumer,
+						   final HttpServerRequest request,
+						   final String searchId) {
+		messageConsumer.unregister();
+		if (log.isDebugEnabled()) {
+			log.debug("Search engine unregister handle : " + searchId);
+		}
+		final boolean hasPartialResult = prematureEnding && !appRegisteredUntreated.isEmpty();
+		if (hasPartialResult) {
+			log.warn("search engine performed a partial search for the term configuration was exceeded");
+		} else {
+			vertx.cancelTimer(timerId);
+		}
+
+		if (results.isEmpty() && currentPage.equals(0)) {
+			//fixme can't use 404 because reverse proxy converts this error to html
+			badRequest(request, "search.engine.empty");
+		} else {
+			renderJson(request, new JsonObject().put("status", hasPartialResult)
+			.put("hasMoreResult", !completeResults).put("results", results));
+		}
 	}
 
 	private String checkCurrentResult(final Object results) {
